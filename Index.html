@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+</head>
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
+<link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+<script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<style>
+  div.sidebar-bottom {
+    bottom: initial;
+    width: 100%;
+    margin: 0 auto;
+    position: initial;
+  }
+  
+  .branding-below {
+    width: 100%;
+  }
+  
+  .nav-tabs> li {
+    width: 50%;
+  }
+  
+  .nav-tabs a {
+    color: black;
+    font-size: 15px;
+  }
+  
+  .nav-tabs .active a {
+    font-weight: 700;
+  }
+  
+  .all-width {
+    width: 100%;
+  }
+</style>
+
+<body>
+  <div>
+
+    <!-- Nav tabs -->
+    <ul class="nav nav-tabs" role="tablist">
+      <li role="presentation" class="active"><a href="#bulk-email" aria-controls="bulk-email" role="tab" data-toggle="tab">Bulk Email</a></li>
+      <li role="presentation"><a href="#template" aria-controls="template" role="tab" data-toggle="tab">Template</a></li>
+    </ul>
+
+    <!-- Tab panes -->
+    <div class="tab-content">
+      <div role="tabpanel" class="tab-pane active" id="bulk-email">
+        <div class="sidebar branding-below">
+
+          <div class="block form-group">
+            <textarea id="emailListTextarea" rows="25" style="width:100%"></textarea>
+          </div>
+
+          <div class="block">
+            <button class="create all-width" id="findEmailButton">Find Email</button>
+          </div>
+          <hr>
+          <div class="sidebar bottom sidebar-bottom">
+            <button onclick="google.script.host.close()">Close</button>
+            <button type="button" class="action pull-right" onclick="google.script.run.schedule()">Api Set</button>
+          </div>
+
+        </div>
+
+      </div>
+
+      <div role="tabpanel" class="tab-pane" id="template">
+        <div class="sidebar branding-below">
+
+          <div class="inline form-group" style="width:100%">
+            <label for="emailSubjectInput">Email Subject Line</label>
+            <input type="text" id="emailSubjectInput" style="width:100%">
+          </div>
+
+          <div class="block form-group">
+            <label for="emailMessageBodyTextarea">Email Message Body</label>
+            <textarea id="emailMessageBodyTextarea" rows="20" style="width:100%"></textarea>
+          </div>
+
+          <div class="block form-group">
+            <button class="create" id="runMailMargeButton">Run Mail Marge</button>
+            <button class="share pull-right" id="sendTestButton">Send a Test</button>
+          </div>
+          <hr>
+          <div class="sidebar bottom sidebar-bottom">
+            <button onclick="google.script.host.close()">Close</button>
+            <button type="button" class="action pull-right" onclick="google.script.run.openDialog()">Api Set</button>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+
+
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js" integrity="sha384-0mSbJDEHialfmuBBQP6A4Qrprq5OVfW37PRR3j5ELqxss1yVqOtnepnHVP9aJ7xS" crossorigin="anonymous"></script>
+  <script>
+    apiKey = localStorage.getItem("apiKey");
+
+    if (!apiKey) {
+      $('#findEmailButton, #sendTestButton, #runMailMargeButton').attr('disabled', 'disabled');
+    }
+
+    $('#sendTestButton').on('click', function() {
+      var subject = $('#emailSubjectInput').val();
+      var message = $('#emailMessageBodyTextarea').val();
+      if (subject.length < 1) {
+        google.script.run.alertAction('Subject Empty');
+        return false;
+      }
+      if (message.length < 1) {
+        google.script.run.alertAction('Message Empty');
+        return false;
+      }
+      google.script.run.sendTestEmailAction(subject, message);
+    });
+
+    $('#runMailMargeButton').on('click', function() {
+      var subject = $('#emailSubjectInput').val();
+      var message = $('#emailMessageBodyTextarea').val();
+      if (subject.length < 1) {
+        google.script.run.alertAction('Subject Empty');
+        return false;
+      }
+      if (message.length < 1) {
+        google.script.run.alertAction('Message Empty');
+        return false;
+      }
+      google.script.run.sendEmailsAction(subject, message);
+    });
+
+    $('#findEmailButton').on('click', function() {
+      var listDomains = [];
+      var list = $('#emailListTextarea').val().split("\n")
+      for (domain in list) {
+        listDomains.push($.trim(list[domain]));
+      };
+
+      google.script.run.findEmailAction(apiKey, listDomains);
+    });
+  </script>
+</body>
+
+</html>
