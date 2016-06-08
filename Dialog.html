@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+  <style>
+    #apiKeyInput {
+      width: 220px;
+      display: inline;
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <br/>
+  <div class="inline form-group" style="width: 100%;">
+    <label for="apiKeyInput">Just log in and visit your API page</label>
+    <br/>
+    <input type="text" id="apiKeyInput" placeholder="Api Key">
+    <button class="share" id="apiSaveButton">Save</button>
+    <br/><br/><br/>
+    <b>Still don't have an account on Simple Outreach?</b>
+    <br/><br/><br/> Simple Oureach is the easiest way to find the email address of anyone
+    <br/><br/>
+    <button class="action">Create a free account</button>
+  </div>
+  <script>
+    $('#apiSaveButton').on('click', function() {
+      var apiKey = $('#apiKeyInput').val();
+      localStorage.setItem("apiKey", apiKey);
+      google.script.run.saveApiKey(apiKey);
+    });
+
+    var apiKey = google.script.run.getApiKey();
+    apiKey = localStorage.getItem("apiKey");
+    if (apiKey) {
+      $('#apiKeyInput').val(apiKey);
+    }
+  </script>
+</body>
+
+</html>
