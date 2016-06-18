@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <base target="_top">
+  <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
+  <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
+  <script src="//code.jquery.com/jquery-migrate-1.3.0.min.js"></script>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-datetimepicker/2.5.4/build/jquery.datetimepicker.full.min.js"></script>
+  <style>
+    #datetimepicker {
+      width: 220px;
+      display: inline;
+      margin: 10px;
+    }
+  </style>
+</head>
+
+<body>
+  <br/>
+  <div class="inline form-group" style="width: 100%;">
+    <input id="datetimepicker" type="text">
+
+    <button onclick="setDate();" type="button">Set Date</button>
+  </div>
+  <script>
+    $('#datetimepicker').datetimepicker();
+
+    function setDate() {
+      google.script.run.setScheduledDate($('#datetimepicker').val());
+      google.script.host.close();
+    }
+  </script>
+</body>
+
+</html>

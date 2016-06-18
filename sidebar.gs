@@ -1,5 +1,6 @@
+// Use this code for Google Docs, Forms, or new Sheets.
 function onOpen() {
-  SpreadsheetApp.getUi()
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
     .createMenu('Simple Outreach')
     .addItem('Parse Emails', 'showSidebar')
     .addItem('Add Key', 'openDialog')
@@ -11,7 +12,7 @@ function showSidebar() {
     .setSandboxMode(HtmlService.SandboxMode.IFRAME)
     .setTitle('Simple Outreach')
     .setWidth(400);
-  SpreadsheetApp.getUi()
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
     .showSidebar(html);
 }
 
@@ -19,32 +20,47 @@ function openDialog() {
   var html = HtmlService.createTemplateFromFile('Dialog')
     .evaluate()
     .setSandboxMode(HtmlService.SandboxMode.IFRAME);
-  SpreadsheetApp.getUi()
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
     .showModalDialog(html, 'Please enter your API key');
+}
+
+function openDatetimeDialog() {
+  var html = HtmlService.createTemplateFromFile('Datetime')
+    .evaluate()
+    .setSandboxMode(HtmlService.SandboxMode.IFRAME);
+  SpreadsheetApp.getUi() // Or DocumentApp or FormApp.
+    .showModalDialog(html, 'Please select schedule date');
+}
+
+function setEmailData(subject, message) {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  sheet.getRange('F2:F' + sheet.getLastRow()).setValue(subject);
+  sheet.getRange('G2:G' + sheet.getLastRow()).setValue(message);
+}
+
+function setScheduledDate(date) {
+  var sheet = SpreadsheetApp.getActiveSheet();
+  sheet.getRange('D2:D' + sheet.getLastRow()).setValue(date);
 }
 
 function saveApiKey(apiKey) {
   var scriptProperties = PropertiesService.getScriptProperties();
   scriptProperties.setProperty('apiKey', apiKey);
   var apiKey = scriptProperties.getProperty('apiKey');
-  Browser.msgBox('Api key "' + apiKey + '" was setted');
+  Browser.msgBox('Api key "' + apiKey + '" was seted');
   showSidebar();
 }
 
 function getApiKey() {
   var scriptProperties = PropertiesService.getScriptProperties();
   var apiKey = scriptProperties.getProperty('apiKey');
+  //  Browser.msgBox('returned "' + apiKey );
   return apiKey;
 }
 
 function sheetSetTitle() {
   var currentdate = new Date();
-  var name = "SO: " + currentdate.getDate() + "/" +
-    (currentdate.getMonth() + 1) + "/" +
-    currentdate.getFullYear() + " @ " +
-    currentdate.getHours() + ":" +
-    currentdate.getMinutes() + ":" +
-    currentdate.getSeconds();
+  var name = "SO: " + currentdate.getDate() + "/" + (currentdate.getMonth() + 1) + "/" + currentdate.getFullYear() + " @ " + currentdate.getHours() + ":" + currentdate.getMinutes() + ":" + currentdate.getSeconds();
   var ss = SpreadsheetApp.getActiveSpreadsheet();
   var sheet = ss.insertSheet(name, 0);
   ss.setActiveSheet(sheet);
@@ -97,6 +113,7 @@ function sendScheduledEmails() {
     // Fetch values for each row in the Range.
     var variablesIndex = getCustomVariablesIndex(sheet);
     var data = dataRange.getValues();
+    //Browser.msgBox(data);
 
     for (var i = 0; i < data.length; ++i) {
       var row = data[i];
@@ -133,6 +150,7 @@ function sendScheduledEmails() {
 }
 
 
+
 function findEmailAction(apiKey, listDomains) {
   Browser.msgBox('Begining Of Search');
   sheetSetTitle();
@@ -140,6 +158,7 @@ function findEmailAction(apiKey, listDomains) {
   var sheet = SpreadsheetApp.getActiveSheet();
   for (domain in listDomains) {
     var reqUrl = 'http://simpleoutreach.com/api/email/' + encodeURIComponent(listDomains[domain]) + '?token=' + apiKey;
+    // Browser.msgBox(reqUrl);
     try {
       var response = UrlFetchApp.fetch(reqUrl);
     } catch (e) {
@@ -150,8 +169,15 @@ function findEmailAction(apiKey, listDomains) {
     }
 
     var json = response.getContentText();
+    //Browser.msgBox(json);
     var data = JSON.parse(json);
+    //Logger.log(data);
+    if (!data.data.emails.length) {
+      data.data.emails.push('no data');
+    }
     for (email in data.data.emails) {
+      //Browser.msgBox(data.data.url +' '+ data.data.emails[email]);
+      // (new Date).format("dd-mm-yyyy")
       sheet.appendRow([data.data.domain, data.data.url, data.data.emails[email], '', 'PENDING', '']);
     }
   }
@@ -162,6 +188,14 @@ function findEmailAction(apiKey, listDomains) {
   sheet.autoResizeColumn(5);
   sheet.autoResizeColumn(6);
   sheet.autoResizeColumn(7);
+
+  var column = sheet.getRange("D2:D");
+  column.setNumberFormat("yyyy-mm-dd");
+
+  var cell = SpreadsheetApp.getActiveSheet().getRange("F2");
+  cell.setValue(new Date());
+  cell.setNumberFormat('yyyy-mm-dd');
+  cell.setValue('');
 
   Browser.msgBox('End Of Search');
 }
@@ -219,7 +253,7 @@ function sendEmailsAction(subject, message) {
   var numCols = sheet.getLastColumn();
   // Fetch the range of cells A2:B3
   var dataRange = sheet.getRange(startRow, 1, numRows, numCols);
-
+  // Fetch values for each row in the Range.
   var variablesIndex = getCustomVariablesIndex(sheet);
   var data = dataRange.getValues();
   for (var i = 0; i < data.length; ++i) {
@@ -235,6 +269,7 @@ function sendEmailsAction(subject, message) {
       sheet.getRange(startRow + i, 5).setValue('WRONG_EMAIL');
       continue;
     }
+    //Browser.msgBox(emailAddress +' | '+ subject +' | '+ message +' | '+ Date.parse(row[3]));
     sendCustomEmail(emailAddress, subject, message, row, variablesIndex);
     sheet.getRange(startRow + i, 5).setValue('SENT');
     SpreadsheetApp.flush();

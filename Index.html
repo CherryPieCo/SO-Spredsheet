@@ -7,7 +7,7 @@
 <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css" integrity="sha384-1q8mTJOASx8j1Au+a5WDVnPi2lkFfwwEAa8hDDdjZlpLegxhjVME1fgjWPGmkzs7" crossorigin="anonymous">
 <link rel="stylesheet" href="https://ssl.gstatic.com/docs/script/css/add-ons1.css">
 <script src="//code.jquery.com/jquery-1.12.0.min.js"></script>
-<script src="//code.jquery.com/jquery-migrate-1.2.1.min.js"></script>
+<script src="//code.jquery.com/jquery-migrate-1.3.0.min.js"></script>
 <style>
   div.sidebar-bottom {
     bottom: initial;
@@ -15,24 +15,21 @@
     margin: 0 auto;
     position: initial;
   }
-  
   .branding-below {
     width: 100%;
   }
-  
-  .nav-tabs> li {
+  .nav-tabs > li {
+    /* width = (100 / number of tabs). This example assumes 3 tabs. */
+    
     width: 50%;
   }
-  
   .nav-tabs a {
     color: black;
     font-size: 15px;
   }
-  
   .nav-tabs .active a {
     font-weight: 700;
   }
-  
   .all-width {
     width: 100%;
   }
@@ -43,8 +40,10 @@
 
     <!-- Nav tabs -->
     <ul class="nav nav-tabs" role="tablist">
-      <li role="presentation" class="active"><a href="#bulk-email" aria-controls="bulk-email" role="tab" data-toggle="tab">Bulk Email</a></li>
-      <li role="presentation"><a href="#template" aria-controls="template" role="tab" data-toggle="tab">Template</a></li>
+      <li role="presentation" class="active"><a href="#bulk-email" aria-controls="bulk-email" role="tab" data-toggle="tab">Bulk Email</a>
+      </li>
+      <li role="presentation"><a href="#template" aria-controls="template" role="tab" data-toggle="tab">Template</a>
+      </li>
     </ul>
 
     <!-- Tab panes -->
@@ -86,10 +85,15 @@
             <button class="create" id="runMailMargeButton">Run Mail Marge</button>
             <button class="share pull-right" id="sendTestButton">Send a Test</button>
           </div>
+          <div class="block form-group">
+            <button onclick="google.script.run.openDatetimeDialog()">Set Scheduled Date</button>
+            <button id="set-mail-template">Set Email Template</button>
+          </div>
           <hr>
           <div class="sidebar bottom sidebar-bottom">
             <button onclick="google.script.host.close()">Close</button>
             <button type="button" class="action pull-right" onclick="google.script.run.openDialog()">Api Set</button>
+
           </div>
         </div>
 
@@ -135,6 +139,12 @@
         return false;
       }
       google.script.run.sendEmailsAction(subject, message);
+    });
+
+    $('#set-mail-template').on('click', function() {
+      var subject = $('#emailSubjectInput').val();
+      var message = $('#emailMessageBodyTextarea').val();
+      google.script.run.setEmailData(subject, message);
     });
 
     $('#findEmailButton').on('click', function() {
